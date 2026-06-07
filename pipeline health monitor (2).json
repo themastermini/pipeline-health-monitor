@@ -1,0 +1,1815 @@
+{
+  "name": "pipeline health monitor",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "months"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -1008,
+        896
+      ],
+      "id": "0e765fb5-ddee-43c3-b9e1-d718ee11dcc8",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1584,
+        368
+      ],
+      "id": "38825f79-a31c-4874-acad-8451a3f8b399",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/14tUp4Nwf4EhAuhPUNVP0EtPdiUTlRTWzb1aLP3YdHa4/edit?gid=847775913#gid=847775913",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 847775913,
+          "mode": "list",
+          "cachedResultName": "Applicants",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14tUp4Nwf4EhAuhPUNVP0EtPdiUTlRTWzb1aLP3YdHa4/edit#gid=847775913"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -784,
+        608
+      ],
+      "id": "eb9f8210-0435-40b5-9564-fd2e76920fcf",
+      "name": "Get rows on applicants",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "KdYjAc4T9MofsA1Q",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/14tUp4Nwf4EhAuhPUNVP0EtPdiUTlRTWzb1aLP3YdHa4/edit?gid=1844499869#gid=1844499869",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 313104266,
+          "mode": "list",
+          "cachedResultName": "Interview Feedback",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14tUp4Nwf4EhAuhPUNVP0EtPdiUTlRTWzb1aLP3YdHa4/edit#gid=313104266"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -784,
+        896
+      ],
+      "id": "b749793e-26c9-4c9f-b2b6-fcd33b8aab8e",
+      "name": "Get row on interviewer feedback",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "KdYjAc4T9MofsA1Q",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -336,
+        848
+      ],
+      "id": "4fc803ed-a990-470b-a402-5a6436ab553e",
+      "name": "No Operation, do nothing1"
+    },
+    {
+      "parameters": {
+        "model": "devstral-medium-latest",
+        "options": {
+          "maxTokens": 100,
+          "temperature": 0.3,
+          "maxRetries": 2,
+          "safeMode": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatMistralCloud",
+      "typeVersion": 1,
+      "position": [
+        560,
+        1040
+      ],
+      "id": "b5884960-edbc-4ca4-b899-62fe63bd7187",
+      "name": "Mistral Cloud Chat Model6",
+      "credentials": {
+        "mistralCloudApi": {
+          "id": "8AcK3LgTIElhoruj",
+          "name": "Mistral Cloud account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-4o",
+        "options": {
+          "maxTokens": 100,
+          "temperature": 0.3,
+          "maxRetries": 2
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        688,
+        1040
+      ],
+      "id": "7162b535-5655-4049-a304-c25af7601451",
+      "name": "OpenRouter Chat Model5",
+      "credentials": {
+        "openRouterApi": {
+          "id": "UasF6MGvhmA0J7H1",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $now }}",
+        "contextWindowLength": 25
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        816,
+        1040
+      ],
+      "id": "a54aa457-4f93-43d7-8e92-18297c31ae98",
+      "name": "Simple Memory5"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\"name\":\"\",\n  \"current stage\":\"\",\n  \"days in stage\":\"\",\n  \"feedback sentiment\":\"\"\n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        944,
+        1040
+      ],
+      "id": "6fecfe03-a2e5-4636-bc12-b23f6f22dcb8",
+      "name": "Structured Output Parser4"
+    },
+    {
+      "parameters": {
+        "model": "devstral-latest",
+        "options": {
+          "maxTokens": 100,
+          "temperature": 0.5,
+          "maxRetries": 2,
+          "safeMode": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatMistralCloud",
+      "typeVersion": 1,
+      "position": [
+        1024,
+        1248
+      ],
+      "id": "31855091-f4b6-4bc0-9b31-447d6a78d761",
+      "name": "Mistral Cloud Chat Model7",
+      "credentials": {
+        "mistralCloudApi": {
+          "id": "8AcK3LgTIElhoruj",
+          "name": "Mistral Cloud account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Review the candidates' data as seen from the previous output\nCandidate name:{{ $json.Name }}\nCurrent Stage:{{ $json['Current Stage'] }}\nDays in Stage:{{ $json['Days in Stage'] }}\nFeedback Sentiment: {{ $json['Feedback Notes'] }}\n",
+        "hasOutputParser": true,
+        "needsFallback": true,
+        "options": {
+          "systemMessage": "You are a helpful recruit manager"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        656,
+        816
+      ],
+      "id": "0685462d-6fbd-4141-afb7-52ac822d95bf",
+      "name": "pipeline reviewer",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        -112,
+        656
+      ],
+      "id": "fbcb9b4f-9bed-46b1-9651-e414820ad7c1",
+      "name": "Remove Duplicates"
+    },
+    {
+      "parameters": {
+        "model": "devstral-medium-latest",
+        "options": {
+          "maxTokens": 100,
+          "temperature": 0.3,
+          "maxRetries": 2,
+          "safeMode": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatMistralCloud",
+      "typeVersion": 1,
+      "position": [
+        1392,
+        1488
+      ],
+      "id": "65c9da5c-3586-4db4-859e-9d6e40a17d25",
+      "name": "Mistral Cloud Chat Model8",
+      "credentials": {
+        "mistralCloudApi": {
+          "id": "8AcK3LgTIElhoruj",
+          "name": "Mistral Cloud account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-4-1106-preview",
+        "options": {
+          "maxTokens": 100,
+          "temperature": 0.3,
+          "maxRetries": 2
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        1520,
+        1488
+      ],
+      "id": "0bf5b8d9-2020-4b9c-8cb6-1c3a1d663970",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "UasF6MGvhmA0J7H1",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $now }}",
+        "contextWindowLength": 25
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        1648,
+        1488
+      ],
+      "id": "e5cbdb32-8cbf-45da-8314-c4dd25b228cc",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{ \"candidate_health\":[ \"Healthy,Stalled\"],\n  \"risk_factor\": \"string\" }",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1776,
+        1488
+      ],
+      "id": "3d1d33a4-fc19-4346-9813-f9ac1051687a",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "model": "devstral-medium-latest",
+        "options": {
+          "maxTokens": 100,
+          "temperature": 0.5,
+          "maxRetries": 2,
+          "safeMode": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatMistralCloud",
+      "typeVersion": 1,
+      "position": [
+        1856,
+        1696
+      ],
+      "id": "96debcb8-4f85-42a1-b9a6-bd8c826d64b0",
+      "name": "Mistral Cloud Chat Model3",
+      "credentials": {
+        "mistralCloudApi": {
+          "id": "8AcK3LgTIElhoruj",
+          "name": "Mistral Cloud account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "devstral-medium-latest",
+        "options": {
+          "maxTokens": 100,
+          "temperature": 0.7,
+          "maxRetries": 2,
+          "safeMode": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatMistralCloud",
+      "typeVersion": 1,
+      "position": [
+        2384,
+        1632
+      ],
+      "id": "d64675e4-3f62-4ecf-814d-691c75dcd4a7",
+      "name": "Mistral Cloud Chat Model",
+      "credentials": {
+        "mistralCloudApi": {
+          "id": "8AcK3LgTIElhoruj",
+          "name": "Mistral Cloud account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $now }}",
+        "contextWindowLength": 1000
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        2640,
+        1632
+      ],
+      "id": "95e70941-132a-4fc4-a2fa-486b5f7c0e40",
+      "name": "Simple Memory2"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-4o-mini",
+        "options": {
+          "maxTokens": 100,
+          "temperature": 0.7,
+          "maxRetries": 2
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        2512,
+        1632
+      ],
+      "id": "d129dafc-18d0-4cc4-b16d-89501e567ec5",
+      "name": "OpenRouter Chat Model2",
+      "credentials": {
+        "openRouterApi": {
+          "id": "UasF6MGvhmA0J7H1",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t \"TimeStamp\":\"\",\n  \"Error\":\"\",\n  \"Solution\":\"\"\n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        2768,
+        1632
+      ],
+      "id": "087388d0-a5cf-4ff3-8648-a8f14e2f7744",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "model": "devstral-latest",
+        "options": {
+          "maxTokens": 1000,
+          "temperature": 0.7,
+          "maxRetries": 2,
+          "safeMode": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatMistralCloud",
+      "typeVersion": 1,
+      "position": [
+        2848,
+        1840
+      ],
+      "id": "ec91b8d3-aff5-461e-b572-ea5995316fa3",
+      "name": "Mistral Cloud Chat Model1",
+      "credentials": {
+        "mistralCloudApi": {
+          "id": "8AcK3LgTIElhoruj",
+          "name": "Mistral Cloud account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "pascalmungai850@gmail.com",
+        "subject": "Error in n8n AI agent",
+        "emailType": "text",
+        "message": "ALERT!ALERT!!! Error detected in the pipeline assessor",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        3584,
+        1408
+      ],
+      "id": "c4552e28-5e0a-4d91-8374-d4a68c2de2e6",
+      "name": "Send a message1",
+      "webhookId": "a74b12ad-4e58-4f6e-870e-bd34fdc30735",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "irLKVaWfxuXOHOpb",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "Kindly review the error and give a suitable cause of action.\nEnsure to include the timestamp of the error in the output. ",
+        "hasOutputParser": true,
+        "needsFallback": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        2480,
+        1408
+      ],
+      "id": "0b24ad0a-6c32-4769-80a5-3e62ab0613d2",
+      "name": "error handler for pipeline reviewer"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "11496ad3-e149-4ddd-bddf-315a17fb7c18",
+              "name": "error",
+              "value": "={{ $json.output.Error }}",
+              "type": "string"
+            },
+            {
+              "id": "a1f86f1d-49f3-4dd0-b8b8-ec4cd6453cd0",
+              "name": "solution",
+              "value": "={{ $json.output.Solution }}",
+              "type": "string"
+            },
+            {
+              "id": "c2572c41-c7fe-44a9-a8c0-3016cb56b35e",
+              "name": "Timestamp",
+              "value": "={{ $json.output.TimeStamp }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3136,
+        1408
+      ],
+      "id": "83948ae4-de63-4e34-8688-711f1ac03738",
+      "name": "Edit Fields3"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1Jws_eM9XUKVg2odsnyy94rZBJ0h_H93xMbbIjllohWo/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "assessor",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Jws_eM9XUKVg2odsnyy94rZBJ0h_H93xMbbIjllohWo/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Error",
+              "displayName": "Error",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Solution",
+              "displayName": "Solution",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        3360,
+        1408
+      ],
+      "id": "360d6197-f11e-4e91-8b34-8e06ee209429",
+      "name": "Append or update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "KdYjAc4T9MofsA1Q",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "devstral-medium-latest",
+        "options": {
+          "maxTokens": 100,
+          "temperature": 0.7,
+          "maxRetries": 2,
+          "safeMode": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatMistralCloud",
+      "typeVersion": 1,
+      "position": [
+        2256,
+        992
+      ],
+      "id": "e016e75c-c84d-49b8-847c-546b3e70be21",
+      "name": "Mistral Cloud Chat Model9",
+      "credentials": {
+        "mistralCloudApi": {
+          "id": "8AcK3LgTIElhoruj",
+          "name": "Mistral Cloud account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $now }}",
+        "contextWindowLength": 1000
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        2512,
+        992
+      ],
+      "id": "a68c3787-c2b4-4ec9-ab8b-f7bb7c5ff594",
+      "name": "Simple Memory4"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-4o-mini",
+        "options": {
+          "maxTokens": 100,
+          "temperature": 0.7,
+          "maxRetries": 2
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        2384,
+        992
+      ],
+      "id": "1725627a-30bf-4410-9933-12d841b6fcc5",
+      "name": "OpenRouter Chat Model4",
+      "credentials": {
+        "openRouterApi": {
+          "id": "UasF6MGvhmA0J7H1",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t \"TimeStamp\":\"\",\n  \"Error\":\"\",\n  \"Solution\":\"\"\n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        2640,
+        992
+      ],
+      "id": "aed5ca1d-af5b-427c-b388-d64d07c74c64",
+      "name": "Structured Output Parser3"
+    },
+    {
+      "parameters": {
+        "sendTo": "pascalmungai850@gmail.com",
+        "subject": "Error in n8n AI agent",
+        "emailType": "text",
+        "message": "ALERT!ALERT!!! Error detected in the pipeline reviewer",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        3984,
+        976
+      ],
+      "id": "04834c83-e4eb-4996-9f9d-074dfe0f79ce",
+      "name": "Send a message3",
+      "webhookId": "a74b12ad-4e58-4f6e-870e-bd34fdc30735",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "irLKVaWfxuXOHOpb",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "Kindly review the error and give a suitable cause of action.\nEnsure to include the timestamp of the error in the output. ",
+        "hasOutputParser": true,
+        "needsFallback": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        2384,
+        768
+      ],
+      "id": "b33f3f67-235f-4e40-a789-eb39c1e92364",
+      "name": "error handler for pipeline reviewer1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "11496ad3-e149-4ddd-bddf-315a17fb7c18",
+              "name": "error",
+              "value": "={{ $json.output.Error }}",
+              "type": "string"
+            },
+            {
+              "id": "a1f86f1d-49f3-4dd0-b8b8-ec4cd6453cd0",
+              "name": "solution",
+              "value": "={{ $json.output.Solution }}",
+              "type": "string"
+            },
+            {
+              "id": "c2572c41-c7fe-44a9-a8c0-3016cb56b35e",
+              "name": "Timestamp",
+              "value": "={{ $json.output.TimeStamp }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3280,
+        976
+      ],
+      "id": "30ef8824-35e2-4454-a5a1-48ddf225f5f5",
+      "name": "Edit Fields5"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1Jws_eM9XUKVg2odsnyy94rZBJ0h_H93xMbbIjllohWo/edit?gid=1902470832#gid=1902470832",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1902470832,
+          "mode": "list",
+          "cachedResultName": "pipleline reviewer",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Jws_eM9XUKVg2odsnyy94rZBJ0h_H93xMbbIjllohWo/edit#gid=1902470832"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Error",
+              "displayName": "Error",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Solution",
+              "displayName": "Solution",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        3760,
+        976
+      ],
+      "id": "57afe353-0f5e-441f-80f8-d1088a78abc4",
+      "name": "Append or update row in sheet2",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "KdYjAc4T9MofsA1Q",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "devstral-latest",
+        "options": {
+          "maxTokens": 1000,
+          "temperature": 0.7,
+          "maxRetries": 2,
+          "safeMode": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatMistralCloud",
+      "typeVersion": 1,
+      "position": [
+        2720,
+        1200
+      ],
+      "id": "26496b6c-b86e-4a91-b673-b05cee15e842",
+      "name": "Mistral Cloud Chat Model11",
+      "credentials": {
+        "mistralCloudApi": {
+          "id": "8AcK3LgTIElhoruj",
+          "name": "Mistral Cloud account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "YUgKM1u1q4yCid21",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/YUgKM1u1q4yCid21",
+          "cachedResultName": "Pipeline health monitor Recruit strategizer"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        2336,
+        368
+      ],
+      "name": "Call WEEK4 Recruit straegiser",
+      "id": "1d24193c-ac8a-4491-b2d6-f7012b9c5c2a"
+    },
+    {
+      "parameters": {
+        "content": "ERROR HANDLING",
+        "height": 1408,
+        "width": 2352,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2112,
+        720
+      ],
+      "typeVersion": 1,
+      "id": "d465ff43-5568-47a1-8925-c13a554afe93",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "DATA COLLECTION AND VALIDATION\n",
+        "height": 816,
+        "width": 1280,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1056,
+        544
+      ],
+      "typeVersion": 1,
+      "id": "6aea15d9-99ce-40db-99d4-d8eb3d08ff65",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "DATA REVIEW AND ASSESSMENT",
+        "height": 1264,
+        "width": 1840,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        256,
+        640
+      ],
+      "typeVersion": 1,
+      "id": "3d4eeced-d88a-49b1-ae01-d4f9cd126611",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/14tUp4Nwf4EhAuhPUNVP0EtPdiUTlRTWzb1aLP3YdHa4/edit?gid=1844499869#gid=1844499869",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1844499869,
+          "mode": "list",
+          "cachedResultName": "Historical Data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14tUp4Nwf4EhAuhPUNVP0EtPdiUTlRTWzb1aLP3YdHa4/edit#gid=1844499869"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -784,
+        1104
+      ],
+      "id": "5b59be70-98dd-4ed1-ba3a-a96dc1c790e9",
+      "name": "Get rows on historical data",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "KdYjAc4T9MofsA1Q",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "e82a4519-8009-4efa-b028-f888180240c1",
+              "leftValue": "={{ $json.row_number }}",
+              "rightValue": {},
+              "operator": {
+                "type": "number",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -560,
+        608
+      ],
+      "id": "03f8471c-9484-4968-9fb9-f875fe966f8a",
+      "name": "validator for applicant data"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "4f36fb4b-bf85-4102-9a9a-e4c39b7e9f6c",
+              "leftValue": "={{ $json.row_number }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -560,
+        896
+      ],
+      "id": "8f17e5be-02b0-4888-b35b-0f83ee05d3f5",
+      "name": "validator for interviewer feedback"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "f3a1e657-cf77-43c1-804e-e5baf3ebc026",
+              "leftValue": "={{ $json.row_number }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -560,
+        1104
+      ],
+      "id": "d0f59a68-6d7d-44dc-b36f-79524acdf8ac",
+      "name": "validator for historical data"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "fieldsToMatchString": "Applicant ID",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -336,
+        656
+      ],
+      "id": "3e1c062f-418c-48fa-b65f-c5590d8f7c72",
+      "name": "Merging applicant data and interviewer feedback",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        112,
+        816
+      ],
+      "id": "c2334cd3-1baa-46e5-af7b-f5afbbda4e41",
+      "name": "merging historical data with already merged data"
+    },
+    {
+      "parameters": {
+        "batchSize": 20,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        336,
+        816
+      ],
+      "id": "78f49cd1-e8c7-4f06-b840-73553e537e29",
+      "name": "splitting merged items into batches"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=using this output {{ $json.output }}, assess;\n\n1. Is this candidate \"Stuck\"? (Days > 7 in one stage).\n2. Is the feedback consistent with the stage?\nUse this to determine the candidates health whether stalled or healthy.\n",
+        "hasOutputParser": true,
+        "needsFallback": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1488,
+        1264
+      ],
+      "id": "1e07f554-4a9c-4bb7-b6bd-a6649b3f3069",
+      "name": "pipeline assessor",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "387a75e3-d6a9-4776-a6f3-48d45d460126",
+              "leftValue": "={{ $json.output.candidate_health }}",
+              "rightValue": "stalled",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        832,
+        368
+      ],
+      "id": "0bf54b1d-8eab-4df8-9794-fb7e16d82e81",
+      "name": "validation for candidate health",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "content": "Applicants Data and the interview feedback data is merged according to the Applicant ID",
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -464,
+        1424
+      ],
+      "typeVersion": 1,
+      "id": "d36490db-5cae-49cb-a6ca-553cda4a8d97",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "Historic Data is merged together with the  already merged data to form 1 form of data.",
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -112,
+        1440
+      ],
+      "typeVersion": 1,
+      "id": "aaa816ac-ffd6-4066-ab80-4220c8b48be5",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "Data from both branches are then kept into the aggregate node in order for them to be processed as one item\nThe aggregated data is then processed by an ai agent whose purpose was to Analyze the aggregated metrics to find patterns and write the email.",
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1440,
+        160
+      ],
+      "typeVersion": 1,
+      "id": "7278bbbd-25a4-443b-965c-9a6a5a5599b8",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "content": "Data is split in batches of 20 and processed through the first AI Agent which its meant to Analyze the merged data for every individual candidate.",
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        304,
+        1952
+      ],
+      "typeVersion": 1,
+      "id": "bd26d15a-4505-4462-a805-fa5c109af4c1",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "content": "IF Node is then kept to check if the candidate_health is stalled\n",
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        752,
+        144
+      ],
+      "typeVersion": 1,
+      "id": "801394ea-7b3c-4ccb-b4f4-4a64e93c9dab",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "content": "Data is collected from the recruitment pipeline data spreadsheet from the following tabs:\n-Applicants data\n-Interviewer feedback\n-Historical data",
+        "height": 176,
+        "width": 176,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -800,
+        1424
+      ],
+      "typeVersion": 1,
+      "id": "fddca3f2-c9cf-4e8a-8526-bad60d63d3e2",
+      "name": "Sticky Note8"
+    },
+    {
+      "parameters": {
+        "content": "The looped data name ,current stage ,days in stage and feedback sentiment are then reviewed and passed to the assessor where they are used to determine the candidates' health whether healthy or stalled.",
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        640,
+        1952
+      ],
+      "typeVersion": 1,
+      "id": "b50cc6f9-52d6-4e9b-8511-7e5fde15b9e4",
+      "name": "Sticky Note9"
+    },
+    {
+      "parameters": {
+        "content": "Incase of an error the error handling AI agents log the error and send an alert email.",
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2352,
+        2160
+      ],
+      "typeVersion": 1,
+      "id": "633afc8d-09b6-4998-98e3-5f060aa05094",
+      "name": "Sticky Note10"
+    },
+    {
+      "parameters": {
+        "content": "The output is taken to the recruit strategizer sub-workflow.\n",
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2224,
+        144
+      ],
+      "typeVersion": 1,
+      "id": "141876b4-3a43-4643-86a7-42ce3cf770c6",
+      "name": "Sticky Note11"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get rows on applicants",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get row on interviewer feedback",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get rows on historical data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Call WEEK4 Recruit straegiser",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get rows on applicants": {
+      "main": [
+        [
+          {
+            "node": "validator for applicant data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Get row on interviewer feedback": {
+      "main": [
+        [
+          {
+            "node": "validator for interviewer feedback",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Mistral Cloud Chat Model6": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "pipeline reviewer",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model5": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "pipeline reviewer",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Simple Memory5": {
+      "ai_memory": [
+        [
+          {
+            "node": "pipeline reviewer",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser4": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "pipeline reviewer",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mistral Cloud Chat Model7": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Structured Output Parser4",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "pipeline reviewer": {
+      "main": [
+        [
+          {
+            "node": "pipeline assessor",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "error handler for pipeline reviewer1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Duplicates": {
+      "main": [
+        [
+          {
+            "node": "merging historical data with already merged data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mistral Cloud Chat Model8": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "pipeline assessor",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "pipeline assessor",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "pipeline assessor",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "pipeline assessor",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mistral Cloud Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Structured Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mistral Cloud Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "error handler for pipeline reviewer",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory2": {
+      "ai_memory": [
+        [
+          {
+            "node": "error handler for pipeline reviewer",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "error handler for pipeline reviewer",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "error handler for pipeline reviewer",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mistral Cloud Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Structured Output Parser1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "error handler for pipeline reviewer": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields3": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append or update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mistral Cloud Chat Model9": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "error handler for pipeline reviewer1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory4": {
+      "ai_memory": [
+        [
+          {
+            "node": "error handler for pipeline reviewer1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "error handler for pipeline reviewer1",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser3": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "error handler for pipeline reviewer1",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "error handler for pipeline reviewer1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields5": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append or update row in sheet2": {
+      "main": [
+        [
+          {
+            "node": "Send a message3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mistral Cloud Chat Model11": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Structured Output Parser3",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get rows on historical data": {
+      "main": [
+        [
+          {
+            "node": "validator for historical data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "validator for applicant data": {
+      "main": [
+        [
+          {
+            "node": "Merging applicant data and interviewer feedback",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "validator for interviewer feedback": {
+      "main": [
+        [
+          {
+            "node": "Merging applicant data and interviewer feedback",
+            "type": "main",
+            "index": 1
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "validator for historical data": {
+      "main": [
+        [
+          {
+            "node": "merging historical data with already merged data",
+            "type": "main",
+            "index": 1
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merging applicant data and interviewer feedback": {
+      "main": [
+        [
+          {
+            "node": "Remove Duplicates",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "merging historical data with already merged data": {
+      "main": [
+        [
+          {
+            "node": "splitting merged items into batches",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "splitting merged items into batches": {
+      "main": [
+        [
+          {
+            "node": "validation for candidate health",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "pipeline reviewer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "pipeline assessor": {
+      "main": [
+        [
+          {
+            "node": "splitting merged items into batches",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "error handler for pipeline reviewer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "validation for candidate health": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "D1D3wKuHpvAP9fQ2",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "2656f4e9-53ff-4b7c-9c0e-d884c05a8d4d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0aa506bc31bb6c23d4205d65e127223a32ab13d31eb28c9510f1888b5b88f164"
+  },
+  "id": "Tyv1BSpRdshKh1cy",
+  "tags": []
+}
